@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  postres:
+    image: postgres:latest
+    container_name: discord_bot_job_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: sonbao0901
+      POSTGRES_PASSWORD: thongminh01
+      POSTGRES_DB: discord_bot_job
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  pg_data:
