@@ -9,10 +9,9 @@ def scrape_jobs_it_viec(url):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("no-sandbox")
-    #chrome_options.add_argument("--incognito")
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
-
+    time.sleep(3)
     # filter_button = driver.find_element(By.XPATH,
     #                                     """/html/body/main/div[1]/div[2]/div[2]/div[3]/div/div[1]/div/div/button""")
     # filter_button.click()
@@ -56,6 +55,7 @@ def scrape_jobs_it_viec(url):
 
             driver = webdriver.Chrome()
             driver.get(job_url)
+            time.sleep(3)
             soup = BeautifulSoup(driver.page_source, "html.parser")
             driver.close()
 

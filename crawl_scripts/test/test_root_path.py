@@ -1,4 +1,4 @@
-from crawl_job.utils.get_root_folder import get_project_root
+from crawl_scripts.utils.get_root_folder import get_project_root
 import os
 
 print(get_project_root())

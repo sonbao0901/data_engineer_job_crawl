@@ -1,22 +1,23 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import time
 
 def init_webdriver(url):
-    driver = webdriver.Chrome()
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
     return driver
 
 def scrape_jobs_topcv(url):
-    # headers = {
-    #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-
-    driver = webdriver.Chrome()
-    driver.get(url)
+    driver = init_webdriver(url)
+    time.sleep(3)
     page_source = driver.page_source
-    driver.quit()
 
     soup = BeautifulSoup(page_source, "html.parser")
     jobs = soup.find_all('div', class_='job-item-search-result')
+    driver.quit()
 
     job_data = []
     for job in jobs:
@@ -29,17 +30,27 @@ def scrape_jobs_topcv(url):
         job_url = job.find('a')['href']
         location = job.find('label', class_='address').text.strip()
         salary = job.find('label', class_='title-salary').text.strip()
+        
+        # Initialize descriptions and requirements with default values
+        descriptions = ''
+        requirements = ''
+        
         driver = init_webdriver(job_url)
+        time.sleep(3)
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, "html.parser")
-        divs = soup.find_all('div', class_='job-description__item')
+        divs = soup.find_all('div', class_='box-info')
+        driver.quit()
+
         for div in divs:
-            if "Mô tả công việc" in div.find('h3').text.strip():
+            h2_tag = div.find('h2')     
+            if h2_tag and "Mô tả công việc" in h2_tag.text.strip():
                 li_content = [li.text.strip() for li in div.find_all('li')]
-                descriptions = '\n'.join(li_content)
-            if "Yêu cầu ứng viên" in div.find('h3').text.strip():
+                descriptions = '\n'.join(li_content)    
+            if h2_tag and "Yêu cầu ứng viên" in h2_tag.text.strip():
                 li_content = [li.text.strip() for li in div.find_all('li')]
                 requirements = '\n'.join(li_content)
+
         job_data.append({
             'title': title,
             'company': company,
@@ -50,6 +61,5 @@ def scrape_jobs_topcv(url):
             'descriptions': descriptions,
             'requirements': requirements
         })
-        driver.quit()
 
     return job_data
