@@ -7,11 +7,15 @@ import time
 
 def scrape_jobs_it_viec(url):
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("no-sandbox")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
-    time.sleep(3)
+    time.sleep(5)
     # filter_button = driver.find_element(By.XPATH,
     #                                     """/html/body/main/div[1]/div[2]/div[2]/div[3]/div/div[1]/div/div/button""")
     # filter_button.click()

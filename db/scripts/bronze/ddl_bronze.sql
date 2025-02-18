@@ -5,9 +5,7 @@ CREATE TABLE IF NOT EXISTS bronze.topcv_data_job (
     logo TEXT, 
     url TEXT UNIQUE, 
     location VARCHAR(100), 
-    salary VARCHAR(50), 
-    descriptions TEXT, 
-    requirements TEXT,
+    salary VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -18,7 +16,8 @@ CREATE TABLE IF NOT EXISTS bronze.itviec_data_job (
     logo TEXT, 
     url TEXT UNIQUE, 
     location VARCHAR(100), 
-    salary VARCHAR(50), 
+    mode VARCHAR(50),
+    tags VARCHAR(200),
     descriptions TEXT, 
     requirements TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
