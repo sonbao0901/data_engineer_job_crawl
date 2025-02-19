@@ -29,8 +29,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - airflow_dags:/opt/airflow/dags
-      - airflow_logs:/opt/airflow/logs
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
       - ./entrypoint/entrypoint_airflow.sh:/entrypoint_airflow.sh  # Ensure it's a file
     entrypoint: ["/bin/bash", "/entrypoint_airflow.sh"]
 
@@ -46,8 +46,8 @@ services:
       - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://sonbao0901:thongminh01@discord_job_db/discord_job_db
     volumes:
-      - airflow_dags:/opt/airflow/dags
-      - airflow_logs:/opt/airflow/logs
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
     command: scheduler
 
   redis:
