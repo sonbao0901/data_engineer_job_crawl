@@ -12,7 +12,72 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data  # Use named volume
+      - pg_data:/var/lib/postgresql/data
+
+  airflow_webserver:
+    image: apache/airflow:2.7.1
+    container_name: airflow_webserver
+    restart: always
+    depends_on:
+      - discord_job_db
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://sonbao0901:thongminh01@discord_job_db/discord_job_db
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://sonbao0901:thongminh01@discord_job_db/discord_job_db
+      - AIRFLOW__WEBSERVER__SECRET_KEY=supersecretkey
+    ports:
+      - "8080:8080"
+    volumes:
+      - airflow_dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+      - ./entrypoint/entrypoint_airflow.sh:/entrypoint_airflow.sh  # Ensure it's a file
+    entrypoint: ["/bin/bash", "/entrypoint_airflow.sh"]
+
+  airflow_scheduler:
+    image: apache/airflow:2.7.1
+    container_name: airflow_scheduler
+    restart: always
+    depends_on:
+      - airflow_webserver
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://sonbao0901:thongminh01@discord_job_db/discord_job_db
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://sonbao0901:thongminh01@discord_job_db/discord_job_db
+    volumes:
+      - airflow_dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+    command: scheduler
+
+  redis:
+    image: redis:latest
+    container_name: airflow_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "7077:7077"
+      - "8081:8080"
+
+  spark-worker:
+    image: bitnami/spark:latest
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    ports:
+      - "8082:8080"
 
 volumes:
   pg_data:
+  airflow_dags:
+  airflow_logs:
