@@ -3,3 +3,4 @@
 discord_bot_job_automate.egg-info
 **/__pycache__/
 logs
+entrypoint
