@@ -14,5 +14,84 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
+  webserver:
+    image: apache/airflow:latest
+    command: webserver
+    entrypoint: ["/opt/airflow/entrypoint.sh"]
+    depends_on:
+      - discord_job_db
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - LOAD_EX=n
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@discord_job_db:5432/${DB_NAME}
+      - DB_HOST=discord_job_db
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - AIRFLOW_WEBSERVER_SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
+      - ./requirements.txt:/opt/airflow/requirements.txt
+
+  airflow_scheduler:
+    image: apache/airflow:latest
+    restart: always
+    depends_on:
+      webserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    environment:
+      - LOAD_EX=n
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@discord_job_db:5432/${DB_NAME}
+      - DB_HOST=discord_job_db
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - AIRFLOW_WEBSERVER_SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
+      - ./requirements.txt:/opt/airflow/requirements.txt
+    command: bash -c "pip install -r ./requirements.txt && airflow db upgrade && airflow scheduler"
+
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master
+    command: bin/spark-class org.apache.spark.deploy.master.Master
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+  
+  spark-worker:
+    image: bitnami/spark:latest
+    container_name: spark-worker
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_MASTER_URL: spark://spark-master:7077
+
 volumes:
   pg_data:

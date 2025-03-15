@@ -3,8 +3,8 @@ import logging
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-from it_viec import scrape_jobs_it_viec
-from topcv import scrape_jobs_topcv
+from crawl_scripts.crawl_job.it_viec import scrape_jobs_it_viec
+from crawl_scripts.crawl_job.topcv import scrape_jobs_topcv
 import json
 from crawl_scripts.utils.get_root_folder import get_project_root
 
@@ -97,7 +97,7 @@ def load_crawl_sources():
     with open(file_path) as f:
         return json.load(f)
 
-def main():
+def main_crawler():
     # Initialize the ingestion class
     ingestion = JobDataIngestion()
     web_sources = load_crawl_sources()
@@ -110,6 +110,3 @@ def main():
             ingestion.insert_topcv_jobs(topcv_jobs)
         except Exception as e:
             logger.error(f"Error in data ingestion: {e}")
-
-if __name__ == "__main__":
-    main()

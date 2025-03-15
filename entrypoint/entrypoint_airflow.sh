@@ -1,27 +1,30 @@
 #!/bin/bash
+# Remove the source .env line
 set -e
 
-# Wait for PostgreSQL using PGPASSWORD environment variable
-while ! PGPASSWORD=$DB_PASSWORD psql -h postgres -U $DB_USER -d $DB_NAME -c '\q' 2>/dev/null; do
-  echo "Postgres is unavailable - sleeping"
-  sleep 1
+# Wait for the database to be ready
+echo "Waiting for database..."
+until pg_isready -h "$DB_HOST" -p 5432 -U "$DB_USER"; do
+  sleep 5
 done
+echo "Database is ready."
 
-echo "Postgres is up - executing command"
-
-# Initialize the database
-airflow db init
-
-# Create admin user if it doesn't exist
-if ! airflow users list | grep -q "admin"; then
-    airflow users create \
-        --username admin \
-        --firstname Admin \
-        --lastname User \
-        --role Admin \
-        --email admin@example.com \
-        --password admin
+if [ -e "/opt/airflow/requirements.txt" ]; then
+  $(command python) pip install --upgrade pip
+  $(command -v pip) install -r requirements.txt  # Removed --user flag
 fi
 
-# Start Airflow webserver
+if [ ! -f "/opt/airflow/airflow.db" ]; then
+  airflow db init && \
+  airflow users create \
+    --username ${AIRFLOW_USER} \
+    --firstname admin \
+    --lastname admin \
+    --role Admin \
+    --email admin@example.com \
+    --password ${AIRFLOW_PASSWORD}
+fi
+
+$(command -v airflow) db upgrade
+
 exec airflow webserver
