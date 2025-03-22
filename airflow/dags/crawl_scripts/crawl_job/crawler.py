@@ -1,19 +1,10 @@
 import os
-import logging
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from crawl_scripts.crawl_job.it_viec import scrape_jobs_it_viec
 from crawl_scripts.crawl_job.topcv import scrape_jobs_topcv
 import json
-from crawl_scripts.utils.get_root_folder import get_project_root
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -24,18 +15,16 @@ class JobDataIngestion:
 
     def _create_db_connection(self):
         """Create database connection"""
+        db_url = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
         try:
-            db_url = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
             return create_engine(db_url)
         except Exception as e:
-            logger.error(f"Database connection error: {e}")
-            raise
+            raise RuntimeError(f"Database connection error: {e}")
 
     def insert_itviec_jobs(self, jobs):
         """Insert IT Viec jobs into database"""
         if not jobs:
-            logger.warning("No IT Viec jobs to insert")
-            return
+            raise ValueError("No IT Viec jobs to insert")
 
         query = text("""
             INSERT INTO bronze.itviec_data_job 
@@ -54,19 +43,20 @@ class JobDataIngestion:
 
         try:
             with self.engine.connect() as conn:
-                for job in jobs:
-                    conn.execute(query, job)
-                conn.commit()
-            logger.info(f"Successfully inserted {len(jobs)} IT Viec jobs")
+                trans = conn.begin()  # ✅ Start transaction
+                try:
+                    conn.execute(query, jobs)  # ✅ Bulk insert instead of looping
+                    trans.commit()  # ✅ Commit once for all jobs
+                except SQLAlchemyError as e:
+                    trans.rollback()
+                    raise RuntimeError(f"Error inserting IT Viec jobs: {e}")
         except SQLAlchemyError as e:
-            logger.error(f"Error inserting IT Viec jobs: {e}")
-            raise
+            raise RuntimeError(f"Database error: {e}")
 
     def insert_topcv_jobs(self, jobs):
         """Insert TopCV jobs into database"""
         if not jobs:
-            logger.warning("No TopCV jobs to insert")
-            return
+            raise ValueError("No TopCV jobs to insert")
 
         query = text("""
             INSERT INTO bronze.topcv_data_job 
@@ -82,31 +72,47 @@ class JobDataIngestion:
 
         try:
             with self.engine.connect() as conn:
-                for job in jobs:
-                    conn.execute(query, job)
-                conn.commit()
-            logger.info(f"Successfully inserted {len(jobs)} TopCV jobs")
+                trans = conn.begin()
+                try:
+                    conn.execute(query, jobs)
+                    trans.commit()
+                except SQLAlchemyError as e:
+                    trans.rollback()
+                    raise RuntimeError(f"Error inserting TopCV jobs: {e}")
         except SQLAlchemyError as e:
-            logger.error(f"Error inserting TopCV jobs: {e}")
-            raise
+            raise RuntimeError(f"Database error: {e}")
+
+    def insert_job(self, source, jobs):
+        if source == "itviec":
+            self.insert_itviec_jobs(jobs)
+        elif source == "topcv":
+            self.insert_topcv_jobs(jobs)
+        else:
+            raise ValueError(f"Invalid source: {source}")
 
 def load_crawl_sources():
     """Load the list of web sources from the JSON configuration file."""
-    file_path = os.path.join(get_project_root(), "crawl_scripts", "crawl_job", "source_crawl.json")
+    file_path = os.path.join("\\".join(os.path.abspath(__file__).split("\\")[:-1:]), "source_crawl.json")
+    try:
+        with open(file_path) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Configuration file not found: {file_path}")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Error decoding JSON file: {e}")
 
-    with open(file_path) as f:
-        return json.load(f)
 
 def main_crawler():
-    # Initialize the ingestion class
     ingestion = JobDataIngestion()
     web_sources = load_crawl_sources()
-    for _, url in web_sources.items():
+
+    for source, url in web_sources.items():
         try:
-            # Insert data from both sources
-            itviec_jobs = scrape_jobs_it_viec(url)
-            ingestion.insert_itviec_jobs(itviec_jobs)
-            topcv_jobs = scrape_jobs_topcv(url)
-            ingestion.insert_topcv_jobs(topcv_jobs)
+            if source=="itviec":
+                itviec_jobs = scrape_jobs_it_viec(url)
+                ingestion.insert_job("itviec", itviec_jobs)
+            if source=="topcv":
+                topcv_jobs = scrape_jobs_topcv(url)
+                ingestion.insert_job("topcv", topcv_jobs)
         except Exception as e:
-            logger.error(f"Error in data ingestion: {e}")
+            raise RuntimeError(f"Error in data ingestion: {e}")

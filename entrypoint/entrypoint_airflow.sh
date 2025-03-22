@@ -1,5 +1,4 @@
 #!/bin/bash
-# Remove the source .env line
 set -e
 
 # Wait for the database to be ready
@@ -10,21 +9,25 @@ done
 echo "Database is ready."
 
 if [ -e "/opt/airflow/requirements.txt" ]; then
-  $(command python) pip install --upgrade pip
-  $(command -v pip) install -r requirements.txt  # Removed --user flag
+  $(command -v python) -m pip install --upgrade pip
+  $(command -v pip) install -r requirements.txt
 fi
 
-if [ ! -f "/opt/airflow/airflow.db" ]; then
-  airflow db init && \
+# Initialize the database
+airflow db migrate
+
+# Check if admin user exists
+echo "Checking if admin user exists..."
+ADMIN_EXISTS=$(airflow users list | grep -c "$AIRFLOW_USER" || true)
+if [ "$ADMIN_EXISTS" -eq "0" ]; then
+  echo "Creating admin user..."
   airflow users create \
-    --username ${AIRFLOW_USER} \
+    --username "$AIRFLOW_USER" \
     --firstname admin \
     --lastname admin \
     --role Admin \
     --email admin@example.com \
-    --password ${AIRFLOW_PASSWORD}
+    --password "$AIRFLOW_PASSWORD"
 fi
-
-$(command -v airflow) db upgrade
 
 exec airflow webserver

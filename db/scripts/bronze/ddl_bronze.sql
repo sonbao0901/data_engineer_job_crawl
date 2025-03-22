@@ -22,3 +22,10 @@ CREATE TABLE IF NOT EXISTS bronze.itviec_data_job (
     requirements TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- DDL
+-- TRUNCATE TABLE discord_job_db.bronze.itviec_data_job;
+-- TRUNCATE TABLE discord_job_db.bronze.topcv_data_job;
+-- ALTER SEQUENCE discord_job_db.bronze.topcv_data_job_id_seq RESTART WITH 1;
+-- ALTER SEQUENCE discord_job_db.bronze.itviec_data_job_id_seq RESTART WITH 1;

@@ -5,3 +5,4 @@ discord_bot_job_automate.egg-info
 logs
 entrypoint
 README.md
+pg_data

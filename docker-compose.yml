@@ -12,10 +12,11 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - ./airflow/pg_data:/var/lib/postgresql/data
 
   webserver:
     image: apache/airflow:latest
+    container_name: airflow-webserver
     command: webserver
     entrypoint: ["/opt/airflow/entrypoint.sh"]
     depends_on:
@@ -39,15 +40,17 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - AIRFLOW_WEBSERVER_SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY}
+      - AIRFLOW_USER=${DB_USER}
+      - AIRFLOW_PASSWORD=${DB_PASSWORD}
     ports:
       - "8080:8080"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
-
   airflow_scheduler:
     image: apache/airflow:latest
+    container_name: airflow_scheduler
     restart: always
     depends_on:
       webserver:
@@ -67,10 +70,12 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - AIRFLOW_WEBSERVER_SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY}
+      - AIRFLOW_USER=${DB_USER}
+      - AIRFLOW_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
-      - ./requirements.txt:/opt/airflow/requirements.txt
+      - ./requirements.txt:/opt/airflow/requirements.txt   
     command: bash -c "pip install -r ./requirements.txt && airflow db upgrade && airflow scheduler"
 
   spark-master:
