@@ -15,9 +15,8 @@ services:
       - ./airflow/pg_data:/var/lib/postgresql/data
 
   webserver:
-    image: apache/airflow:latest
+    image: airflow-custom
     container_name: airflow-webserver
-    command: webserver
     entrypoint: ["/opt/airflow/entrypoint.sh"]
     depends_on:
       - discord_job_db
@@ -46,10 +45,15 @@ services:
       - "8080:8080"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/config/airflow.cfg:/opt/airflow/airflow.cfg
       - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
-      - ./requirements.txt:/opt/airflow/requirements.txt
+      - ./.env:/opt/airflow/.env
+    command: webserver
+
+
   airflow_scheduler:
-    image: apache/airflow:latest
+    image: airflow-custom
+    user: root
     container_name: airflow_scheduler
     restart: always
     depends_on:
@@ -72,11 +76,13 @@ services:
       - AIRFLOW_WEBSERVER_SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY}
       - AIRFLOW_USER=${DB_USER}
       - AIRFLOW_PASSWORD=${DB_PASSWORD}
+
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/config/airflow.cfg:/opt/airflow/airflow.cfg
       - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
-      - ./requirements.txt:/opt/airflow/requirements.txt   
-    command: bash -c "pip install -r ./requirements.txt && airflow db upgrade && airflow scheduler"
+      - ./.env:/opt/airflow/.env
+    command: bash -c "airflow db upgrade && airflow scheduler"
 
   spark-master:
     image: bitnami/spark:latest
@@ -97,6 +103,7 @@ services:
       SPARK_WORKER_CORES: 2
       SPARK_WORKER_MEMORY: 1g
       SPARK_MASTER_URL: spark://spark-master:7077
+
 
 volumes:
   pg_data:
