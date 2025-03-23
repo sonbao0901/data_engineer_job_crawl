@@ -37,17 +37,18 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
     && rm -rf /var/lib/apt/lists/*
 
 # Install ChromeDriver
-RUN wget -q https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip \
-    && unzip chromedriver_linux64.zip -d /usr/local/bin \
+RUN wget -q https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.165/linux64/chromedriver-linux64.zip \
+    && unzip chromedriver-linux64.zip -d /usr/local/bin \
+    && mv /usr/local/bin/chromedriver-linux64/chromedriver.exe /usr/local/bin/chromedriver \
     && chmod +x /usr/local/bin/chromedriver \
-    && rm chromedriver_linux64.zip
+    && rm -rf /usr/local/bin/chromedriver-linux64 chromedriver-linux64.zip
 
 COPY requirements.txt /requirements.txt
 
 USER airflow
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r /requirements.txt
+RUN pip install -r /requirements.txt
 
 # Create directory for DAGs and set permissions
 USER root
