@@ -7,7 +7,7 @@ from crawl_scripts.crawl_job.topcv import scrape_jobs_topcv
 import json
 
 # Load environment variables
-load_dotenv()
+load_dotenv('/opt/airflow/.env')
 
 class JobDataIngestion:
     def __init__(self):
@@ -92,7 +92,7 @@ class JobDataIngestion:
 
 def load_crawl_sources():
     """Load the list of web sources from the JSON configuration file."""
-    file_path = os.path.join("\\".join(os.path.abspath(__file__).split("\\")[:-1:]), "source_crawl.json")
+    file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "source_crawl.json")
     try:
         with open(file_path) as f:
             return json.load(f)
