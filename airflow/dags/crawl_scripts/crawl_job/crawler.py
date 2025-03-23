@@ -7,7 +7,7 @@ from crawl_scripts.crawl_job.topcv import scrape_jobs_topcv
 import json
 
 # Load environment variables
-load_dotenv('/opt/airflow/.env')
+load_dotenv()
 
 class JobDataIngestion:
     def __init__(self):
@@ -19,12 +19,12 @@ class JobDataIngestion:
         try:
             return create_engine(db_url)
         except Exception as e:
-            raise RuntimeError(f"Database connection error: {e}")
+            print(f"Database connection error: {e}")
 
     def insert_itviec_jobs(self, jobs):
         """Insert IT Viec jobs into database"""
         if not jobs:
-            raise ValueError("No IT Viec jobs to insert")
+            print("No IT Viec jobs to insert")
 
         query = text("""
             INSERT INTO bronze.itviec_data_job 
@@ -43,20 +43,20 @@ class JobDataIngestion:
 
         try:
             with self.engine.connect() as conn:
-                trans = conn.begin()  # ✅ Start transaction
+                trans = conn.begin()  # Start transaction
                 try:
-                    conn.execute(query, jobs)  # ✅ Bulk insert instead of looping
-                    trans.commit()  # ✅ Commit once for all jobs
+                    conn.execute(query, jobs)  # Bulk insert instead of looping
+                    trans.commit()  # Commit once for all jobs
                 except SQLAlchemyError as e:
                     trans.rollback()
-                    raise RuntimeError(f"Error inserting IT Viec jobs: {e}")
+                    print(f"Error inserting IT Viec jobs: {e}")
         except SQLAlchemyError as e:
-            raise RuntimeError(f"Database error: {e}")
+            print(f"Database error: {e}")
 
     def insert_topcv_jobs(self, jobs):
         """Insert TopCV jobs into database"""
         if not jobs:
-            raise ValueError("No TopCV jobs to insert")
+            print("No TopCV jobs to insert")
 
         query = text("""
             INSERT INTO bronze.topcv_data_job 
@@ -78,9 +78,9 @@ class JobDataIngestion:
                     trans.commit()
                 except SQLAlchemyError as e:
                     trans.rollback()
-                    raise RuntimeError(f"Error inserting TopCV jobs: {e}")
+                    print(f"Error inserting TopCV jobs: {e}")
         except SQLAlchemyError as e:
-            raise RuntimeError(f"Database error: {e}")
+            print(f"Database error: {e}")
 
     def insert_job(self, source, jobs):
         if source == "itviec":
@@ -88,7 +88,7 @@ class JobDataIngestion:
         elif source == "topcv":
             self.insert_topcv_jobs(jobs)
         else:
-            raise ValueError(f"Invalid source: {source}")
+            print(f"Invalid source: {source}")
 
 def load_crawl_sources():
     """Load the list of web sources from the JSON configuration file."""
@@ -97,9 +97,9 @@ def load_crawl_sources():
         with open(file_path) as f:
             return json.load(f)
     except FileNotFoundError:
-        raise FileNotFoundError(f"Configuration file not found: {file_path}")
+        print(f"Configuration file not found: {file_path}")
     except json.JSONDecodeError as e:
-        raise ValueError(f"Error decoding JSON file: {e}")
+        print(f"Error decoding JSON file: {e}")
 
 
 def main_crawler():
@@ -115,4 +115,4 @@ def main_crawler():
                 topcv_jobs = scrape_jobs_topcv(url)
                 ingestion.insert_job("topcv", topcv_jobs)
         except Exception as e:
-            raise RuntimeError(f"Error in data ingestion: {e}")
+            print(f"Error in data ingestion: {e}")

@@ -1,26 +1,27 @@
 from airflow import DAG
-from datetime import datetime, timedelta
-from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+from datetime import datetime, timedelta
 from crawl_scripts.crawl_job.crawler import main_crawler
-import os
-
-# Default Arguments for DAG
+# Define DAG
 default_args = {
-    'owner': 'harry',
-    'start_date': datetime(2025, 3, 16),  # Use a fixed date to prevent errors
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'start_date': datetime(2024, 3, 22),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
 }
 
-# Define DAG
-with DAG(
-    dag_id='crawl_job',
+dag = DAG(
+    'selenium_crawler_topcv',
     default_args=default_args,
-    schedule_interval='@daily',
+    schedule_interval=timedelta(days=1),  # Run daily
     catchup=False
-):
-    python_task = PythonOperator(
-        task_id='crawl_job',
-        python_callable=main_crawler
-    )
+)
 
-python_task
+scrape_task = PythonOperator(
+    task_id='scrape_jobs',
+    python_callable=main_crawler,
+    dag=dag
+)
+
+scrape_task
