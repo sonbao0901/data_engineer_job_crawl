@@ -1,4 +1,12 @@
 {
-    "itviec": "https://itviec.com/it-jobs/data-analyst-sql",
-    "topcv": "https://www.topcv.vn/tim-viec-lam-data"
+    "itviec_da": "https://itviec.com/it-jobs/data-analyst",
+    "itviec_de": "https://itviec.com/it-jobs/data-engineer",
+    "itviec_ds": "https://itviec.com/it-jobs/data-scientist",
+    "itviec_ml": "https://itviec.com/it-jobs/ai-engineer",
+    "itviec_ai": "https://itviec.com/it-jobs/machine-learning-engineer",
+    "topcv_da": "https://www.topcv.vn/tim-viec-lam-data",
+    "topcv_de": "https://www.topcv.vn/tim-viec-lam-data-engineer",
+    "topcv_ds": "https://www.topcv.vn/tim-viec-lam-data-scientist",
+    "topcv_ai": "https://www.topcv.vn/tim-viec-lam-ai-engineer",
+    "topcv_ml": "https://www.topcv.vn/tim-viec-lam-machine-learning-engineer"
 }

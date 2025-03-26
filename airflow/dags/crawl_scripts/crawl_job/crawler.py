@@ -107,6 +107,7 @@ def main_crawler():
     web_sources = load_crawl_sources()
 
     for source, url in web_sources.items():
+        source=source.split("_")[0]
         try:
             if source=="itviec":
                 itviec_jobs = scrape_jobs_it_viec(url)
