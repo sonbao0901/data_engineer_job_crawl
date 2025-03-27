@@ -29,12 +29,6 @@ from api.services import get_jobs, create_job
 def get_jobs_endpoint():
     return jsonify(get_jobs())
 
-@app.route('/jobs', methods=['POST'])
-@limiter.limit("3 per day")
-@auth.login_required
-def create_job_endpoint():
-    return jsonify(create_job()), 201
-
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Not found'}), 404
