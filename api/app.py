@@ -22,10 +22,6 @@ def create_app():
     db.init_app(app)
     limiter.init_app(app)
     
-    # Create tables if they don't exist
-    with app.app_context():
-        db.create_all()
-    
     from routes import init_routes
     # Import and register routes
     init_routes(app)
