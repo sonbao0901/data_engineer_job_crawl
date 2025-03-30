@@ -5,7 +5,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_httpauth import HTTPTokenAuth
 from config import Config
-from routes import init_routes
 
 
 # Initialize extensions without app
@@ -27,6 +26,7 @@ def create_app():
     with app.app_context():
         db.create_all()
     
+    from routes import init_routes
     # Import and register routes
     init_routes(app)
     

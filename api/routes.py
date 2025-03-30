@@ -1,6 +1,6 @@
 from flask import jsonify
 from services import get_topcv_jobs, get_itviec_jobs
-from app import limiter, db
+from app import limiter
 from functools import wraps
 
 def handle_errors(f):

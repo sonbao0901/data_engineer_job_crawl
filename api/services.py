@@ -1,6 +1,5 @@
 from models import TopcvDataJob, ItviecDataJob
 from schemas import topcv_job_schema, itviec_job_schema
-from app import db
 
 def get_topcv_jobs():
     try:
