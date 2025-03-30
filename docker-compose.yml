@@ -34,7 +34,7 @@ services:
       - LOAD_EX=n
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@discord_job_db:5432/${DB_NAME}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
       - DB_HOST=discord_job_db
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -70,7 +70,7 @@ services:
       - LOAD_EX=n
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW_HOME=/opt/airflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@discord_job_db:5432/${DB_NAME}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
       - DB_HOST=discord_job_db
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
