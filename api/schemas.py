@@ -1,6 +1,6 @@
 from flask_marshmallow import Marshmallow
-from api.models import TopcvDataJob, ItviecDataJob
-from api.app import ma
+from models import TopcvDataJob, ItviecDataJob
+from app import ma
 
 class TopcvDataJobSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

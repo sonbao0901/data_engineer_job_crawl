@@ -4,7 +4,7 @@ from flask_marshmallow import Marshmallow
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_httpauth import HTTPTokenAuth
-from api.config import Config
+from config import Config
 
 
 # Initialize extensions without app
