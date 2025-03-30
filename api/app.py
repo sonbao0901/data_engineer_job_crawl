@@ -22,9 +22,6 @@ def create_app():
     db.init_app(app)
     limiter.init_app(app)
     
-    # Import models after db initialization
-    from api.models import TopcvDataJob, ItviecDataJob
-    
     # Create tables if they don't exist
     with app.app_context():
         db.create_all()
