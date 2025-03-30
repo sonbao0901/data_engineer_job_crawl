@@ -17,16 +17,14 @@ services:
         max-file: "3"
     environment:
       - LOAD_EX=n
-      - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - AIRFLOW_WEBSERVER_SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY}
-      - AIRFLOW_USER=${DB_USER}
-      - AIRFLOW_PASSWORD=${DB_PASSWORD}
     ports:
       - "8080:8080"
     volumes:
@@ -61,9 +59,6 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - AIRFLOW_WEBSERVER_SECRET_KEY=${AIRFLOW_WEBSERVER_SECRET_KEY}
-      - AIRFLOW_USER=${DB_USER}
-      - AIRFLOW_PASSWORD=${DB_PASSWORD}
-
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/config/airflow.cfg:/opt/airflow/airflow.cfg
