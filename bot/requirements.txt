@@ -1,0 +1,2 @@
+openai==1.69.0
+discord.py==2.5.2
