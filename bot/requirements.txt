@@ -1,2 +1,3 @@
-openai==1.69.0
 discord.py==2.5.2
+python-dotenv==1.0.1
+openai==1.69.0
