@@ -3,6 +3,8 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from openai import OpenAI
+import asyncio
+from collections import defauldict
 
 load_dotenv()
 
@@ -33,7 +35,7 @@ async def generate_ai_response(prompt):
         response = client.chat.completions.create(
             model="qwen/qwen2.5-vl-32b-instruct:free",
             messages=[
-                {"role": "system", "content": "You are a helpful career assistant specialized in helping people find jobs. Provide tailored advice based on the user's questions."},
+                {"role": "system", "content": "You are a helpful career assistant specialized in helping people find jobs. Provide tailored advice based on the user's questions. Summarize answer and give response smaller than 2,000 characters."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
@@ -103,11 +105,12 @@ async def on_message(message):
         async with message.channel.typing():
             response = await generate_ai_response(message.content)
             
-            if len(response) > 2000:
-                for chunk in [response[i:i+2000] for i in range(0, len(response), 2000)]:
-                    await message.channel.send(chunk)
-            else:
-                await message.channel.send(response)
+            # if len(response) > 2000:
+            #     for chunk in [response[i:i+2000] for i in range(0, len(response), 2000)]:
+            #         await message.channel.send(chunk)
+            #         await asyncio.sleep(3)
+            # else:
+            await message.channel.send(response)
         return
     
     # Check if the bot is mentioned in a server
