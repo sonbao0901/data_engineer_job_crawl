@@ -4,7 +4,6 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from openai import OpenAI
 import asyncio
-from collections import defauldict
 
 load_dotenv()
 
