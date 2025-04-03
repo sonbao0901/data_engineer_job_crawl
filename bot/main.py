@@ -4,6 +4,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from openai import OpenAI
 import asyncio
+import webserver
 
 load_dotenv()
 
@@ -128,4 +129,5 @@ async def on_message(message):
     await bot.process_commands(message)
 
 if __name__ == '__main__':
+    webserver.keep_alive()
     bot.run(DISCORD_TOKEN)
