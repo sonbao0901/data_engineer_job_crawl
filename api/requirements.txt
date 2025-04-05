@@ -2,7 +2,7 @@ gunicorn==23.0.0
 psycopg2-binary==2.9.10
 requests==2.32.3
 SQLAlchemy==1.4.54
-uvicorn==0.34.0
+uvicorn[standard]==0.34.0
 fastapi==0.110.0
 pydantic==2.6.3
 pydantic-settings==2.2.1
