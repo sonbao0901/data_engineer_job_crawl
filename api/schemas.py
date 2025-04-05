@@ -1,18 +1,42 @@
-from flask_marshmallow import Marshmallow
-from models import TopcvDataJob, ItviecDataJob
-from app import ma
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
 
-class TopcvDataJobSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = TopcvDataJob
-        include_relationships = False
-        load_instance = True
+class TopcvDataJobBase(BaseModel):
+    title: str
+    company: str
+    logo: Optional[str] = None
+    url: Optional[str] = None
+    location: Optional[str] = None
+    salary: Optional[str] = None
 
-class ItviecDataJobSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = ItviecDataJob
-        include_relationships = False
-        load_instance = True
+class TopcvDataJobCreate(TopcvDataJobBase):
+    pass
 
-topcv_job_schema = TopcvDataJobSchema()
-itviec_job_schema = ItviecDataJobSchema()
+class TopcvDataJob(TopcvDataJobBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ItviecDataJobBase(BaseModel):
+    title: str
+    company: str
+    logo: Optional[str] = None
+    url: Optional[str] = None
+    location: Optional[str] = None
+    mode: Optional[str] = None
+    tags: Optional[str] = None
+    descriptions: Optional[str] = None
+    requirements: Optional[str] = None
+
+class ItviecDataJobCreate(ItviecDataJobBase):
+    pass
+
+class ItviecDataJob(ItviecDataJobBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

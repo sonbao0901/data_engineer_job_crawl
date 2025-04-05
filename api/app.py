@@ -1,34 +1,51 @@
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from flask_httpauth import HTTPTokenAuth
-from config import Config
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from config import Settings
+from database import get_db, engine
+from dependencies import limiter
+import models
+import schemas
+import services
+import os
 
+# Create database tables
+models.Base.metadata.create_all(bind=engine)
 
-# Initialize extensions without app
-ma = Marshmallow()
-db = SQLAlchemy()
-limiter = Limiter(key_func=get_remote_address, default_limits=["3 per day"])
-auth = HTTPTokenAuth(scheme='Bearer')
+# Initialize FastAPI app
+app = FastAPI(
+    title="Job API",
+    description="API for job data from TopCV and ITViec",
+    version="1.0.0"
+)
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
-    
-    # Initialize extensions with app
-    ma.init_app(app)
-    db.init_app(app)
-    limiter.init_app(app)
-    
-    from routes import init_routes
-    # Import and register routes
-    init_routes(app)
-    
-    return app
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
-app = create_app()
+# Configure rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Load settings
+settings = Settings()
+
+# Root endpoint
+@app.get("/")
+async def root():
+    return {"message": "API is running"}
+
+# Include routers
+from routes import router
+app.include_router(router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=False)

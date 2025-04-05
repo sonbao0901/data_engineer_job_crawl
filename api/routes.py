@@ -1,32 +1,33 @@
-from flask import jsonify
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.orm import Session
+from typing import List
+from database import get_db
 from services import get_topcv_jobs, get_itviec_jobs
-from app import limiter
-from functools import wraps
+from schemas import TopcvDataJob, ItviecDataJob
+from dependencies import limiter
 
-def handle_errors(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-    return wrapper
+router = APIRouter()
 
-def init_routes(app):
-    @app.route('/')
-    def home():
-        return "API is running", 200
-    
-    @app.route('/topcv/jobs', methods=['GET'])
-    @limiter.limit("3 per day")
-    @handle_errors
-    def get_topcv_jobs_endpoint():
-        with app.app_context():  # Ensure database operations have context
-            return jsonify(get_topcv_jobs())
-    
-    @app.route('/itviec/jobs', methods=['GET'])
-    @limiter.limit("3 per day")
-    @handle_errors
-    def get_itviec_jobs_endpoint():
-        with app.app_context():  # Ensure database operations have context
-            return jsonify(get_itviec_jobs())
+@router.get("/topcv/jobs", response_model=List[TopcvDataJob])
+@limiter.limit("3/day")
+async def get_topcv_jobs_endpoint(request: Request, db: Session = Depends(get_db)):
+    """
+    Get all TopCV jobs
+    """
+    try:
+        jobs = get_topcv_jobs(db)
+        return jobs
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/itviec/jobs", response_model=List[ItviecDataJob])
+@limiter.limit("3/day")
+async def get_itviec_jobs_endpoint(request: Request, db: Session = Depends(get_db)):
+    """
+    Get all ITViec jobs
+    """
+    try:
+        jobs = get_itviec_jobs(db)
+        return jobs
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

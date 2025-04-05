@@ -1,16 +1,24 @@
+from sqlalchemy.orm import Session
 from models import TopcvDataJob, ItviecDataJob
-from schemas import topcv_job_schema, itviec_job_schema
+from schemas import TopcvDataJob as TopcvDataJobSchema, ItviecDataJob as ItviecDataJobSchema
+from typing import List
 
-def get_topcv_jobs():
+def get_topcv_jobs(db: Session) -> List[TopcvDataJobSchema]:
+    """
+    Retrieve all TopCV jobs from the database
+    """
     try:
-        jobs = TopcvDataJob.query.all()
-        return topcv_job_schema.dump(jobs, many=True)
+        jobs = db.query(TopcvDataJob).all()
+        return jobs
     except Exception as e:
         raise Exception(f"Failed to fetch TopCV jobs: {str(e)}")
 
-def get_itviec_jobs():
+def get_itviec_jobs(db: Session) -> List[ItviecDataJobSchema]:
+    """
+    Retrieve all ITViec jobs from the database
+    """
     try:
-        jobs = ItviecDataJob.query.all()
-        return itviec_job_schema.dump(jobs, many=True)
+        jobs = db.query(ItviecDataJob).all()
+        return jobs
     except Exception as e:
         raise Exception(f"Failed to fetch ITViec jobs: {str(e)}")

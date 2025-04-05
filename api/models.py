@@ -1,30 +1,31 @@
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, Integer, String, Text, DateTime, func
+from database import Base
 
-db = SQLAlchemy()
-
-class TopcvDataJob(db.Model):
+class TopcvDataJob(Base):
     __tablename__ = 'topcv_data_job'
     __table_args__ = {'schema': 'bronze'}
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    company = db.Column(db.String(150), nullable=False)
-    logo = db.Column(db.Text)
-    url = db.Column(db.Text, unique=True)
-    location = db.Column(db.String(100))
-    salary = db.Column(db.String(50))
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    id = Column(Integer, primary_key=True)
+    title = Column(String(200), nullable=False)
+    company = Column(String(150), nullable=False)
+    logo = Column(Text)
+    url = Column(Text, unique=True)
+    location = Column(String(100))
+    salary = Column(String(50))
+    created_at = Column(DateTime, default=func.current_timestamp())
 
-class ItviecDataJob(db.Model):
+class ItviecDataJob(Base):
     __tablename__ = 'itviec_data_job'
     __table_args__ = {'schema': 'bronze'}
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    company = db.Column(db.String(150), nullable=False)
-    logo = db.Column(db.Text)
-    url = db.Column(db.Text, unique=True)
-    location = db.Column(db.String(100))
-    mode = db.Column(db.String(50))
-    tags = db.Column(db.String(200))
-    descriptions = db.Column(db.Text)
-    requirements = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    id = Column(Integer, primary_key=True)
+    title = Column(String(200), nullable=False)
+    company = Column(String(150), nullable=False)
+    logo = Column(Text)
+    url = Column(Text, unique=True)
+    location = Column(String(100))
+    mode = Column(String(50))
+    tags = Column(String(200))
+    descriptions = Column(Text)
+    requirements = Column(Text)
+    created_at = Column(DateTime, default=func.current_timestamp())
