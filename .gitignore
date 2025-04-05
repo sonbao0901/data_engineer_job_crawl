@@ -1,5 +1,6 @@
 .env
 .venv
+.venv_api
 .git
 discord_bot_job_automate.egg-info
 **/__pycache__/
