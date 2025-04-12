@@ -1,6 +1,20 @@
 version: '3.9'
 
 services:
+
+  postgresql_db:
+    image: postgres:latest
+    container_name: postgresql_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+ 
   webserver:
     image: airflow-custom
     container_name: airflow-webserver
@@ -11,6 +25,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    depends_on:
+      - postgresql_db
     logging:
       options:
         max-size: "10m"
@@ -33,7 +49,6 @@ services:
       - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
       - ./.env:/opt/airflow/.env
     command: webserver
-
 
   airflow_scheduler:
     image: airflow-custom
@@ -88,4 +103,4 @@ services:
 
 
 volumes:
-  pg_data:
+  postgres_data:
