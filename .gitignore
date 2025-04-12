@@ -8,4 +8,4 @@ logs
 entrypoint
 README.md
 pg_data
-migrate_local_to_render.sh
+migrate_db
