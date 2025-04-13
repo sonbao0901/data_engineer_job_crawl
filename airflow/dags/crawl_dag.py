@@ -12,7 +12,7 @@ default_args = {
 }
 
 dag = DAG(
-    'selenium_crawler_topcv',
+    'data_job_pipeline',
     default_args=default_args,
     schedule_interval=timedelta(days=1),  # Run daily
     catchup=False
