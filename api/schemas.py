@@ -9,6 +9,11 @@ class TopcvDataJobBase(BaseModel):
     url: Optional[str] = None
     location: Optional[str] = None
     salary: Optional[str] = None
+    requirements: Optional[str] = None
+    descriptions: Optional[str] = None
+    experience: Optional[str] = None
+    education: Optional[str] = None
+    type_of_work: Optional[str] = None
 
 class TopcvDataJobCreate(TopcvDataJobBase):
     pass

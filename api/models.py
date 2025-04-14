@@ -12,6 +12,11 @@ class TopcvDataJob(Base):
     url = Column(Text, unique=True)
     location = Column(String(100))
     salary = Column(String(50))
+    requirements = Column(Text)
+    descriptions = Column(Text)
+    experience = Column(String(50))
+    education = Column(String(100))
+    type_of_work = Column(String(50))
     created_at = Column(DateTime, default=func.current_timestamp())
 
 class ItviecDataJob(Base):
