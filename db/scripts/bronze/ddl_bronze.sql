@@ -23,7 +23,13 @@ CREATE TABLE IF NOT EXISTS bronze.itviec_data_job (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
+-- Add new columns to bronze.itviec_data_job
+alter table bronze.topcv_data_job
+add column descriptions text,
+add column requirements text,
+add column experience varchar(100),
+add column education varchar(100),
+add column type_of_work varchar(50);
 -- DDL
 -- TRUNCATE TABLE discord_job_db.bronze.itviec_data_job;
 -- TRUNCATE TABLE discord_job_db.bronze.topcv_data_job;
