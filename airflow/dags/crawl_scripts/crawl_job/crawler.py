@@ -60,14 +60,19 @@ class JobDataIngestion:
 
         query = text("""
             INSERT INTO bronze.topcv_data_job 
-            (title, company, logo, url, location, salary)
-            VALUES (:title, :company, :logo, :url, :location, :salary)
+            (title, company, logo, url, location, salary, descriptions, requirements, experience, education, type_of_work)
+            VALUES (:title, :company, :logo, :url, :location, :salary, :descriptions, :requirements, :experience, :education, :type_of_work)
             ON CONFLICT (url) DO UPDATE SET
             title = EXCLUDED.title,
             company = EXCLUDED.company,
             logo = EXCLUDED.logo,
             location = EXCLUDED.location,
-            salary = EXCLUDED.salary
+            salary = EXCLUDED.salary,
+            descriptions = EXCLUDED.descriptions,
+            requirements = EXCLUDED.requirements,
+            experience = EXCLUDED.experience,
+            education = EXCLUDED.education,
+            type_of_work = EXCLUDED.type_of_work
         """)
 
         try:
