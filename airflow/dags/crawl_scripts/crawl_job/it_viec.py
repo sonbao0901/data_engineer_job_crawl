@@ -71,26 +71,21 @@ def scrape_jobs_it_viec(url):
                 print(job_url)
                 continue
 
-            # Handle different types of list items (Some pages have ul and li, some pages have p)
-            descriptions = [
-                f"{li.get_text(strip=True)}"
-                for ul in job_description.find_all("ul")
-                for li in ul.find_all("li")
-            ]
-            descriptions += [
+            descriptions = ' '.join([
+                f"{p.get_text(strip=True)}"
+                for p in job_description.find_all("li")
+            ]) or ' '.join([
                 f"{p.get_text(strip=True)}"
                 for p in job_description.find_all("p")
-            ]
-
-            requirements = [
-                f"{li.get_text(strip=True)}"
-                for ul in job_requirement.find_all("ul")
-                for li in ul.find_all("li")
-            ]
-            requirements += [
+            ])
+            
+            requirements = ' '.join([
+                f"{p.get_text(strip=True)}"
+                for p in job_requirement.find_all("li")
+            ]) or ' '.join([
                 f"{p.get_text(strip=True)}"
                 for p in job_requirement.find_all("p")
-            ]
+            ])
 
             job_data.append({
                 'title': title,
