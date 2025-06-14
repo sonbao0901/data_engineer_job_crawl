@@ -30,4 +30,5 @@ if [ "$ADMIN_EXISTS" -eq "0" ]; then
     --password "$DB_PASSWORD"
 fi
 
-exec airflow webserver
+# Execute the command passed as arguments (command webserver will be parsed by the command in docker-compose)
+exec airflow "$@"
