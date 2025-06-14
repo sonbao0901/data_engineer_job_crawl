@@ -59,7 +59,7 @@ services:
     command: webserver
 
   airflow_scheduler:
-    image: airflow-custom
+    image: custom-airflow
     user: root
     container_name: airflow_scheduler
     depends_on:
