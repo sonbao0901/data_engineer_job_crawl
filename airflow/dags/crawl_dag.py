@@ -1,7 +1,11 @@
+import os
+import sys
+sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)))
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from crawl_scripts.crawl_job.crawler import main_crawler
+from scripts.crawl_scripts.crawl_job.crawler import main_crawler
+
 # Define DAG
 default_args = {
     'owner': 'airflow',

@@ -2,8 +2,8 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-from crawl_scripts.crawl_job.it_viec import scrape_jobs_it_viec
-from crawl_scripts.crawl_job.topcv import scrape_jobs_topcv
+from .it_viec import scrape_jobs_it_viec
+from .topcv import scrape_jobs_topcv
 import json
 
 # Load environment variables
