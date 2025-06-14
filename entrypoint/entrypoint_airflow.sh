@@ -18,16 +18,16 @@ airflow db migrate
 
 # Check if admin user exists
 echo "Checking if admin user exists..."
-ADMIN_EXISTS=$(airflow users list | grep -c "$AIRFLOW_USER" || true)
+ADMIN_EXISTS=$(airflow users list | grep -c "$DB_USER" || true)
 if [ "$ADMIN_EXISTS" -eq "0" ]; then
   echo "Creating admin user..."
   airflow users create \
-    --username "$AIRFLOW_USER" \
+    --username "$DB_USER" \
     --firstname admin \
     --lastname admin \
     --role Admin \
     --email admin@example.com \
-    --password "$AIRFLOW_PASSWORD"
+    --password "$DB_PASSWORD"
 fi
 
 exec airflow webserver
