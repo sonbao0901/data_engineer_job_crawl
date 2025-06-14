@@ -13,11 +13,17 @@ services:
       - POSTGRES_DB=${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
  
   webserver:
-    image: airflow-custom
+    image: custom-airflow
     container_name: airflow-webserver
-    entrypoint: ["/opt/airflow/entrypoint.sh"]
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -25,7 +31,8 @@ services:
       retries: 5
       start_period: 30s
     depends_on:
-      - postgresql_db
+      postgresql_db:
+        condition: service_healthy
     logging:
       options:
         max-size: "10m"
@@ -34,7 +41,7 @@ services:
       - LOAD_EX=n
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW_HOME=/opt/airflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -45,8 +52,10 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/config/airflow.cfg:/opt/airflow/airflow.cfg
+      - ./airflow/scripts:/opt/airflow/scripts
       - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
       - ./.env:/opt/airflow/.env
+    entrypoint: ["/opt/airflow/entrypoint.sh"]
     command: webserver
 
   airflow_scheduler:
@@ -66,7 +75,7 @@ services:
       - LOAD_EX=n
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW_HOME=/opt/airflow
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -75,7 +84,7 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/config/airflow.cfg:/opt/airflow/airflow.cfg
-      - ./entrypoint/entrypoint_airflow.sh:/opt/airflow/entrypoint.sh
+      - ./airflow/scripts:/opt/airflow/scripts
       - ./.env:/opt/airflow/.env
     command: bash -c "airflow db upgrade && airflow scheduler"
 

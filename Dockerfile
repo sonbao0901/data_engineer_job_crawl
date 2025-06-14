@@ -50,10 +50,5 @@ USER airflow
 # Install Python dependencies
 RUN pip install -r /requirements.txt
 
-# Create directory for DAGs and set permissions
-USER root
-RUN mkdir -p /opt/airflow/dags && chown -R airflow:root /opt/airflow/dags
-USER airflow
-
 # Set workdir
 WORKDIR /opt/airflow
