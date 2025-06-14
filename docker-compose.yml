@@ -5,7 +5,6 @@ services:
   postgresql_db:
     image: postgres:latest
     container_name: postgresql_db
-    restart: always
     ports:
       - "5432:5432"
     environment:
@@ -54,7 +53,6 @@ services:
     image: airflow-custom
     user: root
     container_name: airflow_scheduler
-    restart: always
     depends_on:
       webserver:
         condition: service_healthy
