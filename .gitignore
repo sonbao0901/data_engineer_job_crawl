@@ -5,7 +5,6 @@
 discord_bot_job_automate.egg-info
 **/__pycache__/
 logs
-entrypoint
 README.md
 pg_data
 migrate_db
