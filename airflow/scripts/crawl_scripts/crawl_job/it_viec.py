@@ -40,23 +40,21 @@ def scrape_jobs_it_viec(url):
 
     for job in jobs:
         try:
-            job_url = job.find('h3', class_='imt-3')['data-url']
-            title = job.find('h3').text.strip()
+            job_url = job.find('h3', class_='imt-3 text-break')['data-url']
 
-            if any(keyword in title.lower() for keyword in ['senior', 'manager', 'leader', 'sr.', 'lead']):
-                continue
+            title = job.find('h3').text.strip()
 
             company = job.find(
                 'div', class_='imy-3 d-flex align-items-center').span.text.strip()
+
             logo = job.find(
                 'div', class_='imy-3 d-flex align-items-center').a.img['data-src']
-
-            mode, location = [div.span.text.strip()
-                            for div in job.find_all('div',
-                                                    class_='d-flex align-items-center text-dark-grey imt-1')]
-
-            tags = ' '.join([f'{a.text.strip()}' for a in job.find(
-                'div', class_='imt-3 imb-2').find_all('a')])
+            mode = job.find('div', class_='text-rich-grey flex-shrink-0').text.strip()
+            
+            location = job.find('div', class_='text-rich-grey text-truncate text-nowrap stretched-link position-relative')['title']
+            
+            tags = ', '.join([f'{a.text.strip()}' for a in job.find(
+                'div', class_='imt-4 imb-3 d-flex igap-1').find_all('a')])
 
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
             driver.get(job_url)
@@ -68,7 +66,7 @@ def scrape_jobs_it_viec(url):
                 job_description = soup.find_all('div', class_='imy-5 paragraph')[0]
                 job_requirement = soup.find_all('div', class_='imy-5 paragraph')[1]
             except Exception:
-                print(job_url)
+                print(f"Could not get job description or requirement {job_url}")
                 continue
 
             descriptions = ' '.join([
@@ -78,7 +76,7 @@ def scrape_jobs_it_viec(url):
                 f"{p.get_text(strip=True)}"
                 for p in job_description.find_all("p")
             ])
-            
+
             requirements = ' '.join([
                 f"{p.get_text(strip=True)}"
                 for p in job_requirement.find_all("li")
@@ -99,7 +97,7 @@ def scrape_jobs_it_viec(url):
                 'requirements': requirements
             })
         except Exception:
-            print("could not get job url")
+            print("Error processing job, skipping...")
             continue
 
     return job_data
